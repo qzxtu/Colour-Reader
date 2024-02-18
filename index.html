@@ -121,23 +121,20 @@
 
       function addToHistory(hexColor, addToHist) {
         var colorHistory = document.getElementById('colorHistory');
-        // Verificar si el color ya está en el historial
         var existingColor = Array.from(colorHistory.children).find(function(child) {
           return rgbToHex(child.style.backgroundColor) === hexColor;
         });
-        // Si el color no existe en el historial y no se ha alcanzado el límite, añadirlo
         if (!existingColor && colorHistory.children.length < 21) {
           var historyColor = document.createElement('div');
           historyColor.className = 'historyColor';
           historyColor.style.backgroundColor = hexColor;
           historyColor.addEventListener('click', function() {
             changeColor(hexColor, false);
-            // Copiar el color al portapapeles
             navigator.clipboard.writeText(hexColor);
           });
           historyColor.addEventListener('contextmenu', function(e) {
             e.preventDefault();
-            if (confirm('¿Estás seguro de que quieres eliminar este color del historial?')) {
+            if (confirm('¿Estás seguro de que eliminar el historial?')) {
               removeColorFromHistory(hexColor, historyColor);
             }
           });
@@ -146,30 +143,26 @@
       }
 
       function removeColorFromHistory(hexColor, historyColor) {
-        // Convertir el valor hexadecimal a formato RGB
-        var rgbColor = hexToRGB(hexColor);
-        var colorHistory = localStorage.getItem("colorHistory");
-        if (colorHistory) {
-          colorHistory = colorHistory.split(",");
-          var index = colorHistory.findIndex(function(color) {
-            return hexToRGB(color) === rgbColor;
-          });
-          if (index > -1) {
-            colorHistory.splice(index, 1);
-            localStorage.setItem("colorHistory", colorHistory.join(","));
-            loadColorHistory(); // Actualiza el historial después de la eliminación
-            console.log("Color eliminado: " + hexColor);
-          } else {
-            console.log("Color no encontrado en el historial: " + hexColor);
-          }
+        var colorHistory = getCookie("colorHistory").split(",");
+        var index = colorHistory.indexOf(hexColor);
+        if (index > 1) {
+          colorHistory.splice(index, 1);
+          setCookie("colorHistory", colorHistory.join(","), 365);
           historyColor.parentNode.removeChild(historyColor);
-        } else {
-          console.log("Historial vacío");
         }
+        document.getElementById('colorHistory').innerHTML = '';
+        loadColorHistory();
+      }
+
+      function clearColorHistory() {
+        document.cookie.split(";").forEach(function(c) {
+          document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        document.getElementById('colorHistory').innerHTML = '';
       }
 
       function loadColorHistory() {
-        var colorHistory = localStorage.getItem("colorHistory");
+        var colorHistory = getCookie("colorHistory");
         if (colorHistory) {
           colorHistory = colorHistory.split(",");
           var colorHistoryDiv = document.getElementById('colorHistory');
@@ -204,7 +197,7 @@
         }
         return "";
       }
-      // Función para convertir un color hexadecimal a RGB
+
       function hexToRGB(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
@@ -213,7 +206,7 @@
           b: parseInt(result[3], 16)
         } : null;
       }
-      // Función para convertir un color RGB a hexadecimal
+
       function rgbToHex(rgb) {
         var rgbValues = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
         return "#" + ((1 << 24) + (parseInt(rgbValues[1]) << 16) + (parseInt(rgbValues[2]) << 8) + parseInt(rgbValues[3])).toString(16).slice(1).toUpperCase();
