@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Colour Reader</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="A tool to visualize hexadecimal colours."/>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #ffffff;
+        transition: background-color 0.5s;
+      }
+      #colorInput {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+      }
+      #colorInfo {
+        font-size: 2em;
+        animation: fadeIn 2s;
+      }
+      @keyframes fadeIn {
+        0% {opacity: 0;}
+        100% {opacity: 1;}
+      }
+      #colorHistory {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .historyColor {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="colorInfo">Pega un color hexadecimal</h1>
+    <div id="colorHistory"></div>
+    <script>
+      let body = document.querySelector('body'),
+          h1 = document.querySelector('h1');
+      body.focus(); 
+      body.onblur = () => body.focus();
+      window.onhashchange = () => {
+          if (h1) { 
+            document.body.removeChild(h1);
+            h1 = null;
+          }
+        };
+
+      window.onload = function() {
+        var colorHistory = getCookie("colorHistory");
+        if (colorHistory) {
+          colorHistory = colorHistory.split(",");
+          for (var i = 0; i < colorHistory.length; i++) {
+            addToHistory(colorHistory[i], false);
+          }
+        }
+      };
+      
+      document.onpaste = function(event){
+        var paste = (event.clipboardData || window.clipboardData).getData('text');
+        var hexColor = paste.trim();
+        if(/^#([0-9A-F]{3}){1,2}$/i.test(hexColor)){
+          changeColor(hexColor, true);
+        }
+      };
+
+      function changeColor(hexColor, addToHist) {
+        document.body.style.backgroundColor = hexColor;
+        document.getElementById('colorInfo').innerText = "";
+        var colorHistory = getCookie("colorHistory");
+        if (colorHistory) {
+          colorHistory = colorHistory.split(",");
+          if (!colorHistory.includes(hexColor) && addToHist) {
+            addToHistory(hexColor, true);
+            colorHistory.push(hexColor);
+            setCookie("colorHistory", colorHistory.join(","), 365);
+          }
+        } else if (addToHist) {
+          addToHistory(hexColor, true);
+          setCookie("colorHistory", hexColor, 365);
+        }
+      }
+
+      function addToHistory(hexColor, addToHist) {
+        var colorHistory = document.getElementById('colorHistory');
+        var historyColor = document.createElement('div');
+        historyColor.className = 'historyColor';
+        historyColor.style.backgroundColor = hexColor;
+        historyColor.addEventListener('click', function() {
+          changeColor(hexColor, false);
+        });
+        colorHistory.appendChild(historyColor);
+      }
+
+      function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+      }
+
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+    </script>
+  </body>
+</html>
