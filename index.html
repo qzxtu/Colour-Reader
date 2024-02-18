@@ -3,7 +3,7 @@
   <head>
     <title>Colour Reader</title>
     <meta charset="UTF-8">
-    <meta name="description" content="A tool to visualize hexadecimal colours."/>
+    <meta name="description" content="A tool to visualize hexadecimal colours." />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -15,6 +15,7 @@
         background-color: #ffffff;
         transition: background-color 0.5s;
       }
+
       #colorInput {
         position: fixed;
         top: 0;
@@ -23,14 +24,22 @@
         height: 100%;
         opacity: 0;
       }
+
       #colorInfo {
         font-size: 2em;
         animation: fadeIn 2s;
       }
+
       @keyframes fadeIn {
-        0% {opacity: 0;}
-        100% {opacity: 1;}
+        0% {
+          opacity: 0;
+        }
+
+        100% {
+          opacity: 1;
+        }
       }
+
       #colorHistory {
         position: fixed;
         bottom: 0;
@@ -42,10 +51,21 @@
         flex-wrap: wrap;
         gap: 10px;
       }
+
       .historyColor {
         width: 50px;
         height: 50px;
         border-radius: 50%;
+        cursor: pointer;
+      }
+
+      #clearHistory {
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 10px;
+        background-color: #ff0000;
+        color: #ffffff;
         cursor: pointer;
       }
     </style>
@@ -55,31 +75,30 @@
     <div id="colorHistory"></div>
     <script>
       let body = document.querySelector('body'),
-          h1 = document.querySelector('h1');
-      body.focus(); 
+        h1 = document.querySelector('h1');
+      body.focus();
       body.onblur = () => body.focus();
       window.onhashchange = () => {
-          if (h1) { 
-            document.body.removeChild(h1);
-            h1 = null;
-          }
-        };
-
-      window.onload = function() {
-        var colorHistory = getCookie("colorHistory");
-        if (colorHistory) {
-          colorHistory = colorHistory.split(",");
-          for (var i = 0; i < colorHistory.length; i++) {
-            addToHistory(colorHistory[i], false);
-          }
+        if (h1) {
+          document.body.removeChild(h1);
+          h1 = null;
         }
       };
-      
-      document.onpaste = function(event){
+      document.onpaste = function(event) {
         var paste = (event.clipboardData || window.clipboardData).getData('text');
         var hexColor = paste.trim();
-        if(/^#([0-9A-F]{3}){1,2}$/i.test(hexColor)){
-          changeColor(hexColor, true);
+        if (/^#([0-9A-F]{3}){1,2}$/i.test(hexColor)) {
+          var colorHistory = getCookie("colorHistory");
+          if (colorHistory) {
+            colorHistory = colorHistory.split(",");
+            if (!colorHistory.includes(hexColor)) {
+              changeColor(hexColor, true);
+              loadColorHistory();
+            }
+          } else {
+            changeColor(hexColor, true);
+            loadColorHistory();
+          }
         }
       };
 
@@ -102,19 +121,71 @@
 
       function addToHistory(hexColor, addToHist) {
         var colorHistory = document.getElementById('colorHistory');
-        var historyColor = document.createElement('div');
-        historyColor.className = 'historyColor';
-        historyColor.style.backgroundColor = hexColor;
-        historyColor.addEventListener('click', function() {
-          changeColor(hexColor, false);
+        // Verificar si el color ya está en el historial
+        var existingColor = Array.from(colorHistory.children).find(function(child) {
+          return rgbToHex(child.style.backgroundColor) === hexColor;
         });
-        colorHistory.appendChild(historyColor);
+        // Si el color no existe en el historial y no se ha alcanzado el límite, añadirlo
+        if (!existingColor && colorHistory.children.length < 21) {
+          var historyColor = document.createElement('div');
+          historyColor.className = 'historyColor';
+          historyColor.style.backgroundColor = hexColor;
+          historyColor.addEventListener('click', function() {
+            changeColor(hexColor, false);
+            // Copiar el color al portapapeles
+            navigator.clipboard.writeText(hexColor);
+          });
+          historyColor.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            if (confirm('¿Estás seguro de que quieres eliminar este color del historial?')) {
+              removeColorFromHistory(hexColor, historyColor);
+            }
+          });
+          colorHistory.appendChild(historyColor);
+        }
+      }
+
+      function removeColorFromHistory(hexColor, historyColor) {
+        // Convertir el valor hexadecimal a formato RGB
+        var rgbColor = hexToRGB(hexColor);
+        var colorHistory = localStorage.getItem("colorHistory");
+        if (colorHistory) {
+          colorHistory = colorHistory.split(",");
+          var index = colorHistory.findIndex(function(color) {
+            return hexToRGB(color) === rgbColor;
+          });
+          if (index > -1) {
+            colorHistory.splice(index, 1);
+            localStorage.setItem("colorHistory", colorHistory.join(","));
+            loadColorHistory(); // Actualiza el historial después de la eliminación
+            console.log("Color eliminado: " + hexColor);
+          } else {
+            console.log("Color no encontrado en el historial: " + hexColor);
+          }
+          historyColor.parentNode.removeChild(historyColor);
+        } else {
+          console.log("Historial vacío");
+        }
+      }
+
+      function loadColorHistory() {
+        var colorHistory = localStorage.getItem("colorHistory");
+        if (colorHistory) {
+          colorHistory = colorHistory.split(",");
+          var colorHistoryDiv = document.getElementById('colorHistory');
+          colorHistoryDiv.innerHTML = '';
+          for (var i = 0; i < colorHistory.length; i++) {
+            addToHistory(colorHistory[i], false);
+          }
+        } else {
+          console.log("Historial vacío");
+        }
       }
 
       function setCookie(cname, cvalue, exdays) {
         var d = new Date();
-        d.setTime(d.getTime() + (exdays*24*60*60*1000));
-        var expires = "expires="+ d.toUTCString();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
         document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
       }
 
@@ -122,7 +193,7 @@
         var name = cname + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
         var ca = decodedCookie.split(';');
-        for(var i = 0; i <ca.length; i++) {
+        for (var i = 0; i < ca.length; i++) {
           var c = ca[i];
           while (c.charAt(0) == ' ') {
             c = c.substring(1);
@@ -132,6 +203,20 @@
           }
         }
         return "";
+      }
+      // Función para convertir un color hexadecimal a RGB
+      function hexToRGB(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : null;
+      }
+      // Función para convertir un color RGB a hexadecimal
+      function rgbToHex(rgb) {
+        var rgbValues = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        return "#" + ((1 << 24) + (parseInt(rgbValues[1]) << 16) + (parseInt(rgbValues[2]) << 8) + parseInt(rgbValues[3])).toString(16).slice(1).toUpperCase();
       }
     </script>
   </body>
