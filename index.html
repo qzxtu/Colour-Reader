@@ -78,6 +78,10 @@
       if (colorHistory) {
         document.getElementById('colorInfo').style.display = 'none';
         loadColorHistory();
+        
+        // Cambia el color de fondo al primer color en el historial
+        var firstColor = colorHistory.split(",")[0];
+        document.body.style.backgroundColor = firstColor;
       } else {
         console.log("No hay colores guardados en el historial.");
       }
