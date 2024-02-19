@@ -74,12 +74,13 @@
     <h1 id="colorInfo">Pega un color hexadecimal</h1>
     <div id="colorHistory"></div>
     <script>
-    var colorHistory = getCookie("colorHistory");
+      var colorHistory = getCookie("colorHistory");
       if (colorHistory) {
         document.getElementById('colorInfo').style.display = 'none';
         loadColorHistory();
+      } else {
+        console.log("No hay colores guardados en el historial.");
       }
-	  
       let body = document.querySelector('body'),
         h1 = document.querySelector('h1');
       body.focus();
