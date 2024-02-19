@@ -71,7 +71,7 @@
     </style>
   </head>
   <body>
-    <h1 id="colorInfo">Pega un color hexadecimal</h1>
+    <h1 id="colorInfo">Pastes a hexadecimal color</h1>
     <div id="colorHistory"></div>
     <script>
       var colorHistory = getCookie("colorHistory");
@@ -145,7 +145,7 @@
           });
           historyColor.addEventListener('contextmenu', function(e) {
             e.preventDefault();
-            if (confirm('¿Estás seguro de que eliminar el historial?')) {
+            if (confirm('Are you sure to remove this color from the collection?')) {
               removeColorFromHistory(hexColor, historyColor);
             }
           });
