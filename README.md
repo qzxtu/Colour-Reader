@@ -9,7 +9,9 @@ Colour Reader is a tool that visualizes hexadecimal colours. When you paste a he
 - **Colour History**: The colours that have been pasted previously are saved and displayed at the bottom of the page. When you click on a colour from the history, the page background changes to that colour.
 - **Smooth Transitions**: When the background colour changes, the transition is smooth and lasts 0.5 seconds.
 - **Persistent History**: The colors that you have pasted previously are saved and displayed when you re-enter the page, thanks to the use of cookies. This allows the colors you have previously pasted to be saved even after closing and reopening the page.
-
+- **Clipboard Copy:** By clicking on a color in the history, the color code will automatically be copied to your clipboard. This allows you to easily reuse colors without having to remember or type the color code again.
+- **Right-Click to Delete:** By right-clicking on a color in the history, you will have the option to delete colors from the history. This helps you manage your color history more effectively.
+  
 ## How to Use
 1. Open the web page.
 2. Copy a hexadecimal colour.
