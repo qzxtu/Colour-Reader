@@ -1,3 +1,4 @@
+![image](https://github.com/qzxtu/Colour-Reader/assets/69091361/98c68239-ccb7-4997-a040-8e2d61e4b2b3)
 # Colour Reader
 
 ## Description
@@ -7,6 +8,7 @@ Colour Reader is a tool that visualizes hexadecimal colours. When you paste a he
 - **Colour Visualization**: When you paste a hexadecimal colour, the page background changes to that colour.
 - **Colour History**: The colours that have been pasted previously are saved and displayed at the bottom of the page. When you click on a colour from the history, the page background changes to that colour.
 - **Smooth Transitions**: When the background colour changes, the transition is smooth and lasts 0.5 seconds.
+- **Persistent History**: The colors that you have pasted previously are saved and displayed when you re-enter the page, thanks to the use of cookies. This allows the colors you have previously pasted to be saved even after closing and reopening the page.
 
 ## How to Use
 1. Open the web page.
