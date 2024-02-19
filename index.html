@@ -74,9 +74,10 @@
     <h1 id="colorInfo">Pega un color hexadecimal</h1>
     <div id="colorHistory"></div>
     <script>
-	  var colorHistory = getCookie("colorHistory");
+    var colorHistory = getCookie("colorHistory");
       if (colorHistory) {
         document.getElementById('colorInfo').style.display = 'none';
+        loadColorHistory();
       }
 	  
       let body = document.querySelector('body'),
