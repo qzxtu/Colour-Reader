@@ -150,7 +150,7 @@
       function removeColorFromHistory(hexColor, historyColor) {
         var colorHistory = getCookie("colorHistory").split(",");
         var index = colorHistory.indexOf(hexColor);
-        if (index > 1) {
+        if (index >= 1) {
           colorHistory.splice(index, 1);
           setCookie("colorHistory", colorHistory.join(","), 365);
           historyColor.parentNode.removeChild(historyColor);
